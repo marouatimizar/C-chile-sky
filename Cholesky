@@ -2,19 +2,20 @@
 #define CHOLESKY_H
 
 #include <vector>
+using namespace std;   // <<< Added here as requested
 
 class Cholesky
 {
 public:
     // Compute the Cholesky decomposition A = L * L^T
-    void compute(const std::vector<std::vector<double>>& A);
+    void compute(const vector<vector<double>>& A);
 
     // Display results
     void printL() const;
     void printLT() const;
 
 private:
-    std::vector<std::vector<double>> L;   // lower triangular matrix
+    vector<vector<double>> L;   // lower triangular matrix
 };
 
 #endif
