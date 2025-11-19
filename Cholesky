@@ -1,145 +1,212 @@
-un code cpp de methode de cholesky #ifndef MATRIX_H #define MATRIX_H
+Matrix.h
+#ifndef MATRIX_H
+#define MATRIX_H
 
-#include #include
+#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
 
-class Matrix { private: int n; std::vector<std::vector> data;
+class Matrix {
+private:
+    int n;
+    vector<vector<double>> data;
 
-public: Matrix(int size);
+public:
+    Matrix(int size);
 
-void input();
-void print() const;
+    void input();
+    void print() const;
 
-double& operator()(int i, int j);
-double  operator()(int i, int j) const;
+    double& operator()(int i, int j);
+    double  operator()(int i, int j) const;
 
-int size() const { return n; }
+    int size() const { return n; }
 
-bool isSymmetric() const;
+    bool isSymmetric() const;
 };
 
-#endif #include "Matrix.h" #include
+#endif 
+Matrix.cpp
+#include "Matrix.h"
 
-Matrix::Matrix(int size) : n(size), data(size, std::vector(size)) {}
+Matrix::Matrix(int size) : n(size), data(size, vector<double>(size)) {}
 
-void Matrix::input() { for(int i = 0; i < n; ++i) for(int j = 0; j < n; ++j) { std::cout << "A[" << i+1 << "][" << j+1 << "] = "; std::cin >> data[i][j]; } }
-
-void Matrix::print() const { for(const auto& row : data) { for(double v : row) std::cout << v << " "; std::cout << "\n"; } }
-
-double& Matrix::operator()(int i, int j) { return data[i][j]; }
-
-double Matrix::operator()(int i, int j) const { return data[i][j]; }
-
-bool Matrix::isSymmetric() const { for(int i = 0; i < n; i++) for(int j = 0; j < n; j++) if (std::fabs(data[i][j] - data[j][i]) > 1e-9) return false; return true; }
-
-#ifndef CHOLESKY_H #define CHOLESKY_H
-
-#include "Matrix.h" #include
-
-class Cholesky { private: Matrix L; bool computed;
-
-public: Cholesky(int n);
-
-bool decompose(const Matrix& A);
-double determinant() const;
-
-std::vector<double> solve(const std::vector<double>& B) const;
-
-void printL() const;
-};
-
-#endif
-
-#include "Cholesky.h" #include #include
-
-Cholesky::Cholesky(int n) : L(n), computed(false) {}
-
-bool Cholesky::decompose(const Matrix& A) { int n = L.size();
-
-for(int i = 0; i < n; i++) {
-    for(int j = 0; j <= i; j++) {
-        double sum_val = 0.0;
-        for(int k = 0; k < j; k++)
-            sum_val += L(i, k) * L(j, k);
-
-        if (i == j) {
-            double val = A(i, i) - sum_val;
-            if (val <= 0) {
-                std::cout << "Matrix is not positive definite.\n";
-                return false;
-            }
-            L(i, j) = std::sqrt(val);
-        } else {
-            L(i, j) = (A(i, j) - sum_val) / L(j, j);
+void Matrix::input() {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++) {
+            cout << "A[" << i+1 << "][" << j+1 << "] = ";
+            cin >> data[i][j];
         }
+}
+
+void Matrix::print() const {
+    for(const auto& row : data) {
+        for(double v : row)
+            cout << v << " ";
+        cout << "\n";
     }
 }
 
-computed = true;
-return true;
+double& Matrix::operator()(int i, int j) {
+    return data[i][j];
 }
 
-double Cholesky::determinant() const { double det = 1.0; for(int i = 0; i < L.size(); i++) det *= L(i, i); return det * det; }
-
-std::vector Cholesky::solve(const std::vector& B) const { int n = L.size(); std::vector y(n), x(n);
-
-// Forward substitution Ly = B
-for(int i = 0; i < n; i++) {
-    double sum = 0.0;
-    for(int k = 0; k < i; k++)
-        sum += L(i, k) * y[k];
-    y[i] = (B[i] - sum) / L(i, i);
+double Matrix::operator()(int i, int j) const {
+    return data[i][j];
 }
 
-// Backward substitution Lᵀx = y
-for(int i = n-1; i >= 0; i--) {
-    double sum = 0.0;
-    for(int k = i+1; k < n; k++)
-        sum += L(k, i) * x[k];
-    x[i] = (y[i] - sum) / L(i, i);
+bool Matrix::isSymmetric() const {
+    for(int i = 0; i < n; i++)
+        for(int j = 0; j < n; j++)
+            if (fabs(data[i][j] - data[j][i]) > 1e-9)
+                return false;
+
+    return true;
+}
+#Cholesky.h
+#ifndef CHOLESKY_H
+#define CHOLESKY_H
+
+#include "Matrix.h"
+#include <vector>
+using namespace std;
+
+class Cholesky {
+private:
+    Matrix L;
+    bool computed;
+
+public:
+    Cholesky(int n);
+
+    bool decompose(const Matrix& A);
+    double determinant() const;
+    vector<double> solve(const vector<double>& B) const;
+
+    void printL() const;
+};
+
+#endif
+Cholesky.cpp
+#include "Cholesky.h"
+#include <iostream>
+#include <cmath>
+
+Cholesky::Cholesky(int n) : L(n), computed(false) {}
+
+bool Cholesky::decompose(const Matrix& A) {
+    int n = L.size();
+
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j <= i; j++) {
+            double sum_val = 0.0;
+
+            for(int k = 0; k < j; k++)
+                sum_val += L(i, k) * L(j, k);
+
+            if (i == j) {
+                double val = A(i, i) - sum_val;
+                if (val <= 0) {
+                    cout << "Matrix is not positive definite.\n";
+                    return false;
+                }
+                L(i, j) = sqrt(val);
+            } 
+            else {
+                L(i, j) = (A(i, j) - sum_val) / L(j, j);
+            }
+        }
+    }
+
+    computed = true;
+    return true;
 }
 
-return x;
+double Cholesky::determinant() const {
+    double det = 1.0;
+
+    for(int i = 0; i < L.size(); i++)
+        det *= L(i, i);
+
+    return det * det;
 }
 
-void Cholesky::printL() const { std::cout << "Matrix L (Cholesky):\n"; L.print(); }
+vector<double> Cholesky::solve(const vector<double>& B) const {
+    int n = L.size();
+    vector<double> y(n), x(n);
 
-#include #include "Matrix.h" #include "Cholesky.h"
+    // Forward substitution Ly = B
+    for(int i = 0; i < n; i++) {
+        double sum = 0.0;
+        for(int k = 0; k < i; k++)
+            sum += L(i, k) * y[k];
 
-int main() { int n; std::cout << "Give me n: "; std::cin >> n;
+        y[i] = (B[i] - sum) / L(i, i);
+    }
 
-Matrix A(n);
-std::vector<double> B(n);
+    // Backward substitution Lᵀx = y
+    for(int i = n - 1; i >= 0; i--) {
+        double sum = 0.0;
+        for(int k = i + 1; k < n; k++)
+            sum += L(k, i) * x[k];
 
-std::cout << "\n--- Input Matrix A ---\n";
-A.input();
+        x[i] = (y[i] - sum) / L(i, i);
+    }
 
-std::cout << "\n--- Input Vector B ---\n";
-for(int i = 0; i < n; i++) {
-    std::cout << "B[" << i+1 << "] = ";
-    std::cin >> B[i];
+    return x;
 }
 
-if (A.isSymmetric())
-    std::cout << "\nMatrix is symmetric.\n";
-else
-    std::cout << "\nMatrix is NOT symmetric.\n";
-
-// Cholesky decomposition
-Cholesky chol(n);
-if (!chol.decompose(A)) {
-    std::cout << "Cholesky decomposition failed.\n";
-    return 1;
+void Cholesky::printL() const {
+    cout << "Matrix L (Cholesky):\n";
+    L.print();
 }
+main.cpp
+#include <iostream>
+#include <vector>
+using namespace std;
 
-chol.printL();
+#include "Matrix.h"
+#include "Cholesky.h"
 
-std::cout << "\nDeterminant of A = " << chol.determinant() << "\n";
+int main() {
+    int n;
+    cout << "Give me n: ";
+    cin >> n;
 
-std::vector<double> X = chol.solve(B);
+    Matrix A(n);
+    vector<double> B(n);
 
-std::cout << "\nSolution X:\n";
-for(double x : X) std::cout << x << " ";
-std::cout << "\n";
+    cout << "\n--- Input Matrix A ---\n";
+    A.input();
 
-return 0;
+    cout << "\n--- Input Vector B ---\n";
+    for(int i = 0; i < n; i++) {
+        cout << "B[" << i+1 << "] = ";
+        cin >> B[i];
+    }
+
+    if (A.isSymmetric())
+        cout << "\nMatrix is symmetric.\n";
+    else
+        cout << "\nMatrix is NOT symmetric.\n";
+
+    Cholesky chol(n);
+
+    if (!chol.decompose(A)) {
+        cout << "Cholesky decomposition failed.\n";
+        return 1;
+    }
+
+    chol.printL();
+
+    cout << "\nDeterminant of A = " << chol.determinant() << "\n";
+
+    vector<double> X = chol.solve(B);
+
+    cout << "\nSolution X:\n";
+    for(double x : X) cout << x << " ";
+    cout << "\n";
+
+    return 0;
 }
