@@ -1,5 +1,3 @@
-.cholesky.h
-
 #ifndef CHOLESKY_H
 #define CHOLESKY_H
 
@@ -21,9 +19,6 @@ private:
 
 #endif
 
-.cholesky.cpp
-
-#include "cholesky.h"
 #include <iostream>
 #include <cmath>
 using namespace std;
@@ -79,9 +74,6 @@ void Cholesky::printLT() const
     }
 }
 
-.main.cpp
-
-#include "cholesky.h"
 #include <vector>
 using namespace std;
 
