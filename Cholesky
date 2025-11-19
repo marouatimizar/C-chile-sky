@@ -1,5 +1,3 @@
-# code-cpp
-Matrix.h
 #ifndef MATRIX_H
 #define MATRIX_H
 
@@ -7,29 +5,30 @@ Matrix.h
 #include <vector>
 using namespace std;
 
+// Class for Cholesky decomposition: stores the lower triangular matrix L and provides methods
 class Cholesky {
 private:
-    Matrix L;
-    bool computed;
+    Matrix L;        // Lower triangular matrix
+    bool computed;   
 
 public:
-    Cholesky(int n);
+    Cholesky(int n); // Constructor: initialize matrix L
 
-    bool decompose(const Matrix& A);
-    double determinant() const;
-    vector<double> solve(const vector<double>& B) const;
-
-    void printL() const;
+    bool decompose(const Matrix& A);          
+    double determinant() const;               
+    vector<double> solve(const vector<double>& B) const; // Solve Ax = B
+    void printL() const;                       // Display matrix L
 };
 
-#endif
-Cholesky.cpp
+
 #include "Cholesky.h"
 #include <iostream>
 #include <cmath>
 
+// Constructor: initialize L and set computed to false
 Cholesky::Cholesky(int n) : L(n), computed(false) {}
 
+// Step 1: Perform Cholesky decomposition (calculate L such that A = L * L^T)
 bool Cholesky::decompose(const Matrix& A) {
     int n = L.size();
 
@@ -40,15 +39,15 @@ bool Cholesky::decompose(const Matrix& A) {
             for(int k = 0; k < j; k++)
                 sum_val += L(i, k) * L(j, k);
 
-            if (i == j) {
+            if (i == j) { 
                 double val = A(i, i) - sum_val;
-                if (val <= 0) {
+                if (val <= 0) { 
                     cout << "Matrix is not positive definite.\n";
                     return false;
                 }
                 L(i, j) = sqrt(val);
             } 
-            else {
+            else { 
                 L(i, j) = (A(i, j) - sum_val) / L(j, j);
             }
         }
@@ -58,45 +57,44 @@ bool Cholesky::decompose(const Matrix& A) {
     return true;
 }
 
+// Step 2: Compute determinant of A using the product of diagonal elements of L
 double Cholesky::determinant() const {
     double det = 1.0;
-
     for(int i = 0; i < L.size(); i++)
         det *= L(i, i);
 
-    return det * det;
+    return det * det; // det(A) = (product of L diagonal)^2
 }
 
+// Step 3: Solve system Ax = B using forward and backward substitution
 vector<double> Cholesky::solve(const vector<double>& B) const {
     int n = L.size();
     vector<double> y(n), x(n);
 
-    // Forward substitution Ly = B
+    
     for(int i = 0; i < n; i++) {
         double sum = 0.0;
         for(int k = 0; k < i; k++)
             sum += L(i, k) * y[k];
-
         y[i] = (B[i] - sum) / L(i, i);
     }
 
-    // Backward substitution Lᵀx = y
+   
     for(int i = n - 1; i >= 0; i--) {
         double sum = 0.0;
         for(int k = i + 1; k < n; k++)
             sum += L(k, i) * x[k];
-
         x[i] = (y[i] - sum) / L(i, i);
     }
 
     return x;
 }
 
+// Step 4: Display the lower triangular matrix L
 void Cholesky::printL() const {
     cout << "Matrix L (Cholesky):\n";
     L.print();
 }
-main.cpp
 #include <iostream>
 #include <vector>
 using namespace std;
@@ -105,6 +103,7 @@ using namespace std;
 #include "Cholesky.h"
 
 int main() {
+    // Step 1: Read matrix size and create matrix A and vector B
     int n;
     cout << "Give me n: ";
     cin >> n;
@@ -112,33 +111,40 @@ int main() {
     Matrix A(n);
     vector<double> B(n);
 
+    // Step 2: Input the matrix A
     cout << "\n--- Input Matrix A ---\n";
     A.input();
 
+    // Step 3: Input the vector B
     cout << "\n--- Input Vector B ---\n";
     for(int i = 0; i < n; i++) {
         cout << "B[" << i+1 << "] = ";
         cin >> B[i];
     }
 
+    // Step 4: Check if matrix is symmetric
     if (A.isSymmetric())
         cout << "\nMatrix is symmetric.\n";
     else
         cout << "\nMatrix is NOT symmetric.\n";
 
+    // Step 5: Perform Cholesky decomposition
     Cholesky chol(n);
-
     if (!chol.decompose(A)) {
         cout << "Cholesky decomposition failed.\n";
         return 1;
     }
 
+    // Step 6: Print the lower triangular matrix L
     chol.printL();
 
+    // Step 7: Compute and display the determinant
     cout << "\nDeterminant of A = " << chol.determinant() << "\n";
 
+    // Step 8: Solve the system Ax = B
     vector<double> X = chol.solve(B);
 
+    // Step 9: Display the solution vector X
     cout << "\nSolution X:\n";
     for(double x : X) cout << x << " ";
     cout << "\n";
