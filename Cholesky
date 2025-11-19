@@ -23,8 +23,6 @@ private:
 
 .cholesky.cpp
 
-Commentaires numérotés exactement comme ton prof :
-
 #include "cholesky.h"
 #include <iostream>
 #include <cmath>
