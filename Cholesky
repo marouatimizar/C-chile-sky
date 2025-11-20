@@ -1,96 +1,76 @@
-#ifndef CHOLESKY_H
-#define CHOLESKY_H
-
-#include <vector>
-using namespace std;   // <<< Added here as requested
-
-class Cholesky
-{
-public:
-    // Compute the Cholesky decomposition A = L * L^T
-    void compute(const vector<vector<double>>& A);
-
-    // Display results
-    void printL() const;
-    void printLT() const;
-
-private:
-    vector<vector<double>> L;   // lower triangular matrix
-};
-
-#endif
-
 #include <iostream>
+#include <vector>
 #include <cmath>
 using namespace std;
 
-void Cholesky::compute(const vector<vector<double>>& A)
-{
-    int n = A.size();
-    L.assign(n, vector<double>(n, 0.0));
+// Function to perform Cholesky decomposition: A = L * L^T
+void choleskyDecomposition(vector<vector<double>> A, int n) {
 
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j <= i; j++)
-        {
-            // Compute 1: calculate summation term
-            double sum = 0.0;
+    // Initialize L matrix with zeros
+    vector<vector<double>> L(n, vector<double>(n, 0));
+
+    // Compute L
+    for (int i = 0; i < n; i++) {
+
+        for (int j = 0; j <= i; j++) {
+
+            double sum = 0;
+
+            // Summation part
             for (int k = 0; k < j; k++)
                 sum += L[i][k] * L[j][k];
 
-            // Compute 2: diagonal element
-            if (i == j)
-            {
-                L[i][j] = sqrt(A[i][i] - sum);
+            if (i == j) {
+                // Diagonal element
+                double val = A[i][i] - sum;
+
+                if (val <= 0) {
+                    cout << "Matrix is not positive definite.\n";
+                    return;
+                }
+
+                L[i][j] = sqrt(val);
             }
-            else
-            {
-                // Compute 3: non-diagonal element
+            else {
+                // Off–diagonal element
                 L[i][j] = (A[i][j] - sum) / L[j][j];
             }
         }
     }
-}
 
-void Cholesky::printL() const
-{
+    // Print L matrix
     cout << "\nMatrix L:\n";
-    for (auto& row : L)
-    {
-        for (auto val : row)
-            cout << val << "\t";
+    for (auto row : L) {
+        for (double v : row)
+            cout << v << "\t";
         cout << endl;
     }
-}
 
-void Cholesky::printLT() const
-{
-    cout << "\nMatrix L^T:\n";
-    int n = L.size();
+    // Compute determinant = (product of diagonal(L))^2
+    double det = 1;
     for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-            cout << L[j][i] << "\t";
-        cout << endl;
-    }
+        det *= L[i][i];
+    det = det * det;
+
+    cout << "\nDeterminant of A = " << det << endl;
 }
 
-#include <vector>
-using namespace std;
+int main() {
 
-int main()
-{
-    vector<vector<double>> A = {
-        {4, 12, -16},
-        {12, 37, -43},
-        {-16, -43, 98}
-    };
+    int n;
+    cout << "Give me n: ";
+    cin >> n;
 
-    Cholesky ch;
-    ch.compute(A);
+    vector<vector<double>> A(n, vector<double>(n));
 
-    ch.printL();
-    ch.printLT();
+    cout << "\n--- Input Matrix A ---\n";
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < n; j++) {
+            cout << "A[" << i+1 << "][" << j+1 << "] = ";
+            cin >> A[i][j];
+        }
+
+    choleskyDecomposition(A, n);
 
     return 0;
 }
