@@ -1,0 +1,117 @@
+#include <iostream>
+#include <cmath>
+
+using namespace std;
+
+// ----------------------------------------
+// Structure simple pour un élément non nul
+// ----------------------------------------
+struct Node {
+    int row;
+    int col;
+    double value;
+    Node* next;
+};
+
+// Ajouter un nouvel élément à la liste
+void insert(Node*& head, int row, int col, double value) {
+    Node* newNode = new Node();
+    newNode->row = row;
+    newNode->col = col;
+    newNode->value = value;
+    newNode->next = head;
+    head = newNode;
+}
+
+// Chercher la valeur à une position
+double getValue(Node* head, int row, int col) {
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->row == row && current->col == col)
+            return current->value;
+        current = current->next;
+    }
+    return 0.0; // si l’élément n’existe pas
+}
+
+// Mettre à jour une valeur dans la liste
+void setValue(Node*& head, int row, int col, double value) {
+    Node* current = head;
+    while (current != nullptr) {
+        if (current->row == row && current->col == col) {
+            current->value = value;
+            return;
+        }
+        current = current->next;
+    }
+    insert(head, row, col, value);
+}
+
+// ----------------------------------------
+// Décomposition de Cholesky
+// ----------------------------------------
+void cholesky(Node*& L, Node* A, int n) {
+    for (int i = 0; i < n; i++) {
+
+        for (int j = 0; j <= i; j++) {
+
+            double sum = getValue(A, i, j);
+
+            for (int k = 0; k < j; k++) {
+                sum -= getValue(L, i, k) * getValue(L, j, k);
+            }
+
+            if (i == j) {
+                if (sum <= 0) {
+                    cout << "Erreur : Matrice non définie positive.\n";
+                    return;
+                }
+                setValue(L, i, j, sqrt(sum));
+            } else {
+                double lij = sum / getValue(L, j, j);
+                setValue(L, i, j, lij);
+            }
+        }
+    }
+}
+
+// Afficher matrice
+void printMatrix(Node* head, int n) {
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            cout << getValue(head, i, j) << "  ";
+        }
+        cout << endl;
+    }
+}
+
+// ----------------------------------------
+// Programme principal
+// ----------------------------------------
+int main() {
+    Node* A = nullptr;
+    Node* L = nullptr;
+    
+    cout << "Exemple simple d’une matrice 3x3 :\n";
+
+    // Exemple de ton rapport
+    insert(A, 0, 0, 4);
+    insert(A, 0, 1, 12);
+    insert(A, 0, 2, -16);
+    insert(A, 1, 0, 12);
+    insert(A, 1, 1, 37);
+    insert(A, 1, 2, -43);
+    insert(A, 2, 0, -16);
+    insert(A, 2, 1, -43);
+    insert(A, 2, 2, 98);
+
+    cout << "\nMatrice A :\n";
+    printMatrix(A, 3);
+
+    cholesky(L, A, 3);
+
+    cout << "\nMatrice L (Cholesky) :\n";
+    printMatrix(L, 3);
+
+    return 0;
+}
