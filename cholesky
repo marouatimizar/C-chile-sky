@@ -3,9 +3,6 @@
 
 using namespace std;
 
-// ----------------------------------------
-// Structure simple pour un élément non nul
-// ----------------------------------------
 struct Node {
     int row;
     int col;
@@ -13,7 +10,6 @@ struct Node {
     Node* next;
 };
 
-// Ajouter un nouvel élément à la liste
 void insert(Node*& head, int row, int col, double value) {
     Node* newNode = new Node();
     newNode->row = row;
@@ -23,7 +19,6 @@ void insert(Node*& head, int row, int col, double value) {
     head = newNode;
 }
 
-// Chercher la valeur à une position
 double getValue(Node* head, int row, int col) {
     Node* current = head;
     while (current != nullptr) {
@@ -31,10 +26,9 @@ double getValue(Node* head, int row, int col) {
             return current->value;
         current = current->next;
     }
-    return 0.0; // si l’élément n’existe pas
+    return 0; 
 }
 
-// Mettre à jour une valeur dans la liste
 void setValue(Node*& head, int row, int col, double value) {
     Node* current = head;
     while (current != nullptr) {
@@ -47,9 +41,6 @@ void setValue(Node*& head, int row, int col, double value) {
     insert(head, row, col, value);
 }
 
-// ----------------------------------------
-// Décomposition de Cholesky
-// ----------------------------------------
 void cholesky(Node*& L, Node* A, int n) {
     for (int i = 0; i < n; i++) {
 
@@ -63,7 +54,7 @@ void cholesky(Node*& L, Node* A, int n) {
 
             if (i == j) {
                 if (sum <= 0) {
-                    cout << "Erreur : Matrice non définie positive.\n";
+                    cout << "Error matrix not defined positive.\n";
                     return;
                 }
                 setValue(L, i, j, sqrt(sum));
@@ -75,7 +66,6 @@ void cholesky(Node*& L, Node* A, int n) {
     }
 }
 
-// Afficher matrice
 void printMatrix(Node* head, int n) {
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
@@ -85,16 +75,13 @@ void printMatrix(Node* head, int n) {
     }
 }
 
-// ----------------------------------------
-// Programme principal
-// ----------------------------------------
 int main() {
     Node* A = nullptr;
     Node* L = nullptr;
     
-    cout << "Exemple simple d’une matrice 3x3 :\n";
+    cout << "matrix 3x3 :\n";
 
-    // Exemple de ton rapport
+    
     insert(A, 0, 0, 4);
     insert(A, 0, 1, 12);
     insert(A, 0, 2, -16);
